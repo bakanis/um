@@ -2,6 +2,7 @@ package um
 
 type UserManager interface {
 	Setup(dns string) error
+	Close() error
 
 	CreateUser(userName, emailAddr string, status int32) (*User, error)
 
