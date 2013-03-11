@@ -7,7 +7,7 @@ import (
 	_ "github.com/bmizerany/pq"
 )
 
-const testDns = "host=127.0.0.1 user=postgres dbname=usermanagement_testing sslmode=disable"
+const cTestDns = "host=127.0.0.1 user=postgres dbname=usermanagement_testing sslmode=disable"
 
 // setup test data
 func testSetup() *sql.DB {
@@ -39,7 +39,7 @@ func testSetup() *sql.DB {
 	var err error
 	var session *sql.DB
 
-	session, err = sql.Open("postgres", testDns)
+	session, err = sql.Open("postgres", cTestDns)
 	if err != nil {
 		panic(err)
 	}
