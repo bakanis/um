@@ -1,0 +1,10 @@
+language: go
+before_script:
+  - psql -c 'create database usermanagement_testing;' -U postgres
+script:
+  - go get -d -v && go build -v && go test -i ./... && go test -test.v ./...
+notifications:
+  email: false
+branches:
+  only:
+    - dev
