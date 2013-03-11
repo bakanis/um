@@ -7,7 +7,7 @@ import (
 	_ "github.com/bmizerany/pq"
 )
 
-const testDns = "user=postgres dbname=usermanagement_testing sslmode=disable"
+const testDns = "host=127.0.0.1 user=postgres dbname=usermanagement_testing sslmode=disable"
 
 // setup test data
 func testSetup() *sql.DB {
