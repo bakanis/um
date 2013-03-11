@@ -7,7 +7,6 @@ import (
 )
 
 type Manager struct {
-	dns     string
 	session *sql.DB
 }
 
