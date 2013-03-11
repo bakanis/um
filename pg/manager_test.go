@@ -11,7 +11,7 @@ func TestCreateValidUser(t *testing.T) {
 	session := testSetup()
 	defer testTearDown(session)
 
-	manager, err := um.Open("postgres", testDns)
+	manager, err := um.Open("postgres", cTestDns)
 	if err != nil {
 		panic(err)
 	}
@@ -60,7 +60,7 @@ func TestUserNameExists(t *testing.T) {
 	session := testSetup()
 	defer testTearDown(session)
 
-	manager, err := um.Open("postgres", testDns)
+	manager, err := um.Open("postgres", cTestDns)
 	if err != nil {
 		panic(err)
 	}
