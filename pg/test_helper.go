@@ -30,7 +30,11 @@ func testSetup() *sql.DB {
 
 		create index ix_um_users_email_addr on um_users(email_addr);
 		create index ix_um_users_created_on on um_users(created_on);
-		create index ix_um_users_last_login on um_users(last_login);`
+		create index ix_um_users_last_login on um_users(last_login);
+
+		insert into um_users(user_name, email_addr, status) values
+			('fixtureuser1', 'fixtureuser1@example.com', 10),
+			('fixtureuser2', 'fixtureuser2@example.com', 20);`
 
 	var err error
 	var session *sql.DB

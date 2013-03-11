@@ -6,6 +6,12 @@ import "database/sql"
 func (this *Manager) Setup(dns string) error {
 	var err error
 	this.session, err = sql.Open("postgres", dns)
+
+	if err == nil {
+		query := "insert into um_users(user_name, email_addr, status, created_on, last_login) values($1, $2, $3, $4, $5) returning id;"
+		this.createUserStmt, err = this.session.Prepare(query)
+	}
+
 	return err
 }
 

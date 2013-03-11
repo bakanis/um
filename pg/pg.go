@@ -8,6 +8,8 @@ import (
 
 type Manager struct {
 	session *sql.DB
+
+	createUserStmt *sql.Stmt // prepared statement for creating user
 }
 
 func init() {
