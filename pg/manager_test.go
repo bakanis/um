@@ -71,11 +71,20 @@ func TestUserNameExists(t *testing.T) {
 		panic(err)
 	}
 	if exists != true {
-		t.Error("fixtureuser1 exists in the database, but UserNameExists reports otherwise")
+		t.Error("fixtureuser1 exists in the database")
 	}
-
 	exists, err = manager.UserNameExists("FIXTUREUSER2")
 	if err != nil {
 		panic(err)
+	}
+	if exists != true {
+		t.Error("FIXTUREUSER2 (case insensitive) exists in the database")
+	}
+	exists, err = manager.UserNameExists("fixtureuser3doesnotexist")
+	if err != nil {
+		panic(err)
+	}
+	if exists != false {
+		t.Error("fixtureuser3doesnotexist does not exist in the database")
 	}
 }

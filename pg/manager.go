@@ -11,7 +11,8 @@ import (
 type Manager struct {
 	session *sql.DB
 
-	createUserStmt *sql.Stmt // prepared statement for creating user
+	createUserStmt     *sql.Stmt // prepared statement for creating user
+	userNameExistsStmt *sql.Stmt // statement for checking if a user name exists
 }
 
 // Setup prepares the manager's database connections
@@ -22,6 +23,8 @@ func (this *Manager) Setup(dns string) error {
 	if err == nil {
 		query := "insert into um_users(user_name, email_addr, status, created_on, last_login) values($1, $2, $3, $4, $5) returning id;"
 		this.createUserStmt, err = this.session.Prepare(query)
+		query = "select exists(select id from um_users where user_name=$1);"
+		this.userNameExistsStmt, err = this.session.Prepare(query)
 	}
 
 	return err
@@ -71,8 +74,16 @@ func (this *Manager) Find(q string) (*um.User, error) {
 	return nil, nil
 }
 
+// UserNameExists returns true iff there's a user with this user name (case insensitive).
 func (this *Manager) UserNameExists(userName string) (bool, error) {
-	return false, nil
+	userName = strings.ToLower(strings.Trim(userName, " "))
+	if userName == "" {
+		return false, errors.New("userName must not be empty")
+	}
+	var exists bool
+	row := this.userNameExistsStmt.QueryRow(userName)
+	err := row.Scan(&exists)
+	return exists, err
 }
 
 func (this *Manager) SetPassword(u *um.User, plainPw string) error {
