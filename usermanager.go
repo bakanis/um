@@ -8,6 +8,7 @@ type UserManager interface {
 
 	FindById(id uint64) (*User, error)
 	Find(q string) (*User, error)
+	UserNameExists(userName string) (bool, error)
 
 	Authenticate(u *User, plainPw string, updateLogin bool) error
 	SetPassword(u *User, plainPw string) error

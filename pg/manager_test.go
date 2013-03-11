@@ -54,3 +54,28 @@ func TestCreateValidUser(t *testing.T) {
 		t.FailNow()
 	}
 }
+
+// TestUserNameExists makes sure UserNameExists returns true iff there's a user record in the database
+func TestUserNameExists(t *testing.T) {
+	session := testSetup()
+	defer testTearDown(session)
+
+	manager, err := um.Open("postgres", testDns)
+	if err != nil {
+		panic(err)
+	}
+	defer manager.Close()
+
+	exists, err := manager.UserNameExists("fixtureuser1")
+	if err != nil {
+		panic(err)
+	}
+	if exists != true {
+		t.Error("fixtureuser1 exists in the database, but UserNameExists reports otherwise")
+	}
+
+	exists, err = manager.UserNameExists("FIXTUREUSER2")
+	if err != nil {
+		panic(err)
+	}
+}
