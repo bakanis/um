@@ -2,22 +2,22 @@ package um
 
 import "fmt"
 
-var gManagers = make(map[string]UserManager)
+var g_managers = make(map[string]UserManager)
 
 // Register registers a user manager
 func Register(name string, manager UserManager) {
 	if name == "" {
 		panic("um: Manager name cannot be empty")
 	}
-	if _, exists := gManagers[name]; exists {
+	if _, exists := g_managers[name]; exists {
 		panic(fmt.Sprintf("um: Manager named '%s' already exists", name))
 	}
-	gManagers[name] = manager
+	g_managers[name] = manager
 }
 
 // Open opens a user manager session
 func Open(name, dns string) (UserManager, error) {
-	manager, exists := gManagers[name]
+	manager, exists := g_managers[name]
 	if !exists {
 		panic(fmt.Sprintf("um: Manager named '%s' does not exist", name))
 	}
