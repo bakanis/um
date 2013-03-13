@@ -4,6 +4,7 @@ import (
 	"github.com/golibs/um"
 	"math/rand"
 	"testing"
+	"time"
 )
 
 // TestCreateValidUser makes sure a the user manager can handle a valid user creation
@@ -178,5 +179,74 @@ func TestFindFailure(t *testing.T) {
 	if user != nil || err == nil {
 		t.Error("Find must return nil and an error when user does not exist")
 		t.FailNow()
+	}
+}
+
+// TestAuthenticateSuccess makes sure authenticate returns nil
+// when the password matches
+func TestAuthenticateSuccess(t *testing.T) {
+	session := testSetup()
+	defer testTearDown(session)
+	manager, err := um.Open("postgres", c_testDns)
+	if err != nil {
+		panic(err)
+	}
+	defer manager.Close()
+
+	user, err := manager.FindById(1)
+	if err != nil {
+		panic(err)
+	}
+	if manager.Authenticate(user, "Password123", false) != nil {
+		t.Error("Authenticate must return nil when the password matches")
+		t.FailNow()
+	}
+}
+
+func TestAuthenticateFail(t *testing.T) {
+	session := testSetup()
+	defer testTearDown(session)
+	manager, err := um.Open("postgres", c_testDns)
+	if err != nil {
+		panic(err)
+	}
+	defer manager.Close()
+
+	user, err := manager.FindById(1)
+	if err != nil {
+		panic(err)
+	}
+	if manager.Authenticate(user, "WrongPassword", false) == nil {
+		t.Error("Authenticate must return an error when password does not match")
+		t.FailNow()
+	}
+}
+
+func TestAuthenticateUpdateLogin(t *testing.T) {
+	session := testSetup()
+	defer testTearDown(session)
+	manager, err := um.Open("postgres", c_testDns)
+	if err != nil {
+		panic(err)
+	}
+	defer manager.Close()
+
+	user, err := manager.FindById(1)
+	if err != nil {
+		panic(err)
+	}
+	lastLogin := user.LastLogin()
+	time.Sleep(3 * time.Second)
+	if manager.Authenticate(user, "Password123", true) != nil {
+		t.Error("Authenticate must return nil when the password matches")
+		t.FailNow()
+	}
+	if !user.LastLogin().After(lastLogin) {
+		t.Error("Successful authentication must update the User last login when flag is set to true")
+		t.Fail()
+	}
+	if !assertRecord(session, "um_users", map[string]interface{}{"id": user.Id(), "last_login": user.LastLogin()}) {
+		t.Error("Successful authentication must update last login within the database when flag is set to true")
+		t.Fail()
 	}
 }
