@@ -11,6 +11,7 @@ const c_testDns = "host=127.0.0.1 user=postgres dbname=usermanagement_testing ss
 
 // setup test data
 func testSetup() *sql.DB {
+	// test password is 'Password123'
 	var setupSql = `
 		create sequence um_users_id_seq start 1;
 
@@ -32,9 +33,9 @@ func testSetup() *sql.DB {
 		create index ix_um_users_created_on on um_users(created_on);
 		create index ix_um_users_last_login on um_users(last_login);
 
-		insert into um_users(user_name, email_addr, status) values
-			('fixtureuser1', 'fixtureuser1@example.com', 10),
-			('fixtureuser2', 'fixtureuser2@example.com', 20);`
+		insert into um_users(user_name, email_addr, status, salt, hash) values
+			('fixtureuser1', 'fixtureuser1@example.com', 10, '950333c33bf84dbbceea95126a23974e', '2432612431302471466d6e7241755864322f7647727a4469574754362e702e3465697432472e6b54502e652e6174396167327732587a492e65732f32'),
+			('fixtureuser2', 'fixtureuser2@example.com', 20, '950333c33bf84dbbceea95126a23974e', '2432612431302471466d6e7241755864322f7647727a4469574754362e702e3465697432472e6b54502e652e6174396167327732587a492e65732f32');`
 
 	var err error
 	var session *sql.DB
