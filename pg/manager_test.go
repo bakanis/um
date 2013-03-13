@@ -26,28 +26,28 @@ func TestCreateValidUser(t *testing.T) {
 		t.Error("CreateUser did not return a valid User structure")
 		t.FailNow()
 	}
-	if user.Id == 0 {
+	if user.Id() == 0 {
 		t.Error("CreateUser did not give the User structure a valid ID number")
 		t.Fail()
 	}
-	if user.UserName != "testcreatevaliduser" {
-		t.Errorf("UserName is '%s' instead of 'testcreatevaliduser' as expected", user.UserName)
+	if user.UserName() != "testcreatevaliduser" {
+		t.Errorf("UserName is '%s' instead of 'testcreatevaliduser' as expected", user.UserName())
 		t.Fail()
 	}
-	if user.EmailAddr != "test@example.com" {
-		t.Errorf("EmailAddr is '%s' instead of 'test@example.com'", user.EmailAddr)
+	if user.EmailAddr() != "test@example.com" {
+		t.Errorf("EmailAddr is '%s' instead of 'test@example.com'", user.EmailAddr())
 		t.Fail()
 	}
-	if user.Status != status {
-		t.Errorf("Status is '%d' instead of '%d' as expected", user.Status, status)
+	if user.Status() != status {
+		t.Errorf("Status is '%d' instead of '%d' as expected", user.Status(), status)
 		t.Fail()
 	}
 
 	props := map[string]interface{}{
-		"id":         user.Id,
-		"user_name":  user.UserName,
-		"email_addr": user.EmailAddr,
-		"status":     user.Status,
+		"id":         user.Id(),
+		"user_name":  user.UserName(),
+		"email_addr": user.EmailAddr(),
+		"status":     user.Status(),
 	}
 	if !assertRecord(session, "um_users", props) {
 		t.Error("Cannot find the coresponding user record in the database")

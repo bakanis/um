@@ -6,5 +6,5 @@ import (
 )
 
 func init() {
-	um.Register("postgres", &Manager{})
+	um.Register("postgres", &t_manager{})
 }
