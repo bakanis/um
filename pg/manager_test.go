@@ -59,7 +59,6 @@ func TestCreateValidUser(t *testing.T) {
 func TestUserNameExists(t *testing.T) {
 	session := testSetup()
 	defer testTearDown(session)
-
 	manager, err := um.Open("postgres", c_testDns)
 	if err != nil {
 		panic(err)
@@ -86,5 +85,50 @@ func TestUserNameExists(t *testing.T) {
 	}
 	if exists != false {
 		t.Error("fixtureuser3doesnotexist does not exist in the database")
+	}
+}
+
+// TestFindByIdSuccess makes sure FindById returns the correct existing user
+func TestFindByIdSuccess(t *testing.T) {
+	session := testSetup()
+	defer testTearDown(session)
+	manager, err := um.Open("postgres", c_testDns)
+	if err != nil {
+		panic(err)
+	}
+	defer manager.Close()
+
+	user, err := manager.FindById(1)
+	if err != nil {
+		panic(err)
+	}
+	if user == nil {
+		t.Error("FindById did not return a valid user for ID #1")
+		t.FailNow()
+	}
+	if id := user.Id(); id != 1 {
+		t.Errorf("User ID returns %d, but 1 is expected", id)
+		t.Fail()
+	}
+	if userName := user.UserName(); userName != "fixtureuser1" {
+		t.Errorf("User name returns '%s', but 'fixtureuser1' is expected", userName)
+		t.Fail()
+	}
+}
+
+// TestFindByIdFail makes sure FindById returns nil and an error when the user does not exist
+func TestFindByIdFail(t *testing.T) {
+	session := testSetup()
+	defer testTearDown(session)
+	manager, err := um.Open("postgres", c_testDns)
+	if err != nil {
+		panic(err)
+	}
+	defer manager.Close()
+
+	user, err := manager.FindById(1000)
+	if !(err != nil && user == nil) {
+		t.Error("FindById need to return an error and a nil-um.User")
+		t.FailNow()
 	}
 }
