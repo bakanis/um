@@ -257,7 +257,7 @@ func TestAuthenticateUpdateLogin(t *testing.T) {
 		panic(err)
 	}
 	lastLogin := user.LastLogin()
-	time.Sleep(3 * time.Second)
+	time.Sleep(3 * time.Second) // make sure some time has passed
 	if manager.Authenticate(user, "Password123", true) != nil {
 		t.Error("Authenticate must return nil when the password matches")
 		t.FailNow()
