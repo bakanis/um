@@ -128,7 +128,55 @@ func TestFindByIdFail(t *testing.T) {
 
 	user, err := manager.FindById(1000)
 	if !(err != nil && user == nil) {
-		t.Error("FindById need to return an error and a nil-um.User")
+		t.Error("FindById must return an error and a nil-um.User")
+		t.FailNow()
+	}
+}
+
+func testFindSuccessHelper(t *testing.T, manager um.UserManager, q string, expectedId uint64) {
+	user, err := manager.Find(q)
+	if err != nil {
+		panic(err)
+	}
+	if user == nil {
+		t.Errorf("Find did not return a valid user for '%s'", q)
+		t.FailNow()
+	}
+	if id := user.Id(); id != 1 {
+		t.Errorf("Find for '%s' did not returned ID #%d, but #%d is expected", q, id, expectedId)
+		t.Fail()
+	}
+}
+
+// TestFindSuccess makes sure Find returns a valid User when user exists
+func TestFindSuccess(t *testing.T) {
+	session := testSetup()
+	defer testTearDown(session)
+	manager, err := um.Open("postgres", c_testDns)
+	if err != nil {
+		panic(err)
+	}
+	defer manager.Close()
+
+	testFindSuccessHelper(t, manager, "fixtureuser1", 1)
+	testFindSuccessHelper(t, manager, "fixtureuser1@example.com", 1)
+	testFindSuccessHelper(t, manager, "fixtureUSER2", 2)
+	testFindSuccessHelper(t, manager, "fixtureUSER2@EXAMPLE.COM", 2)
+}
+
+// TestFindFailture makes sure Find returns nil & error when user doesn't exist
+func TestFindFailure(t *testing.T) {
+	session := testSetup()
+	defer testTearDown(session)
+	manager, err := um.Open("postgres", c_testDns)
+	if err != nil {
+		panic(err)
+	}
+	defer manager.Close()
+
+	user, err := manager.Find("userdoesnotexist")
+	if user != nil || err == nil {
+		t.Error("Find must return nil and an error when user does not exist")
 		t.FailNow()
 	}
 }
