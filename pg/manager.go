@@ -17,7 +17,6 @@ type t_manager struct {
 	findByIdStmt       *sql.Stmt // statement to get a user by ID
 }
 
-// Setup prepares the manager's database connections
 func (this *t_manager) Setup(dns string) error {
 	var err error
 	this.session, err = sql.Open("postgres", dns)
@@ -43,7 +42,6 @@ func (this *t_manager) Setup(dns string) error {
 	return err
 }
 
-// Close cleans up the database connection of the current manager
 func (this *t_manager) Close() error {
 	if this.session != nil {
 		return this.session.Close()
@@ -51,7 +49,6 @@ func (this *t_manager) Close() error {
 	return nil
 }
 
-// CreateUser creates a user record in the database and returns a User structure
 func (this *t_manager) CreateUser(userName, emailAddr string, status int32) (um.User, error) {
 	if userName == "" {
 		return nil, errors.New("User name must not be blank")
@@ -72,9 +69,7 @@ func (this *t_manager) CreateUser(userName, emailAddr string, status int32) (um.
 	return user, nil
 }
 
-// Authenticate checks a user against the provided password. Returns an error
-// if the user does not exist or not authenticated.
-// If the user is authenticated, its login time will be updated if the updateLogin flag is true
+
 func (this *t_manager) Authenticate(u um.User, plainPw string, updateLogin bool) error {
 	return nil
 }
@@ -102,7 +97,6 @@ func (this *t_manager) Find(q string) (um.User, error) {
 	return nil, nil
 }
 
-// UserNameExists returns true iff there's a user with this user name (case insensitive).
 func (this *t_manager) UserNameExists(userName string) (bool, error) {
 	userName = strings.ToLower(strings.Trim(userName, " "))
 	if userName == "" {
