@@ -56,6 +56,21 @@ func TestCreateValidUser(t *testing.T) {
 	}
 }
 
+func TestCreateInvalidUser(t *testing.T) {
+	session := testSetup()
+	defer testTearDown(session)
+	manager, err := um.Open("postgres", c_testDns)
+	if err != nil {
+		panic(err)
+	}
+	defer manager.Close()
+
+	user, err := manager.CreateUser(" ", "validemail@example.com", 0)
+	if user != nil || err == nil {
+		t.Error("CreateUser must return nil and an error when the user name is empty")
+	}
+}
+
 // TestUserNameExists makes sure UserNameExists returns true iff there's a user record in the database
 func TestUserNameExists(t *testing.T) {
 	session := testSetup()
