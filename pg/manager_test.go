@@ -142,8 +142,8 @@ func testFindSuccessHelper(t *testing.T, manager um.UserManager, q string, expec
 		t.Errorf("Find did not return a valid user for '%s'", q)
 		t.FailNow()
 	}
-	if id := user.Id(); id != 1 {
-		t.Errorf("Find for '%s' did not returned ID #%d, but #%d is expected", q, id, expectedId)
+	if id := user.Id(); id != expectedId {
+		t.Errorf("Find for '%s' returned ID #%d, but #%d is expected", q, id, expectedId)
 		t.Fail()
 	}
 }
