@@ -35,6 +35,10 @@ func TestCreateValidUser(t *testing.T) {
 		t.Errorf("EmailAddr is '%s' instead of 'test@example.com'", user.EmailAddr())
 		t.Fail()
 	}
+	if displayName := user.DisplayName(); displayName != "Test User" {
+		t.Errorf("Display name is '%s' but 'Test User' is expected", displayName)
+		t.Fail()
+	}
 	if user.Status() != status {
 		t.Errorf("Status is '%d' instead of '%d' as expected", user.Status(), status)
 		t.Fail()
@@ -126,6 +130,10 @@ func TestFindByIdSuccess(t *testing.T) {
 		t.Errorf("Email address returns '%s', but 'fixtureuser1@example.com' is expected", emailAddr)
 		t.Fail()
 	}
+	if displayName := user.DisplayName(); displayName != "Fixture User 1" {
+		t.Errorf("Display name is '%s' but 'Fixture User 1' is expected", displayName)
+		t.Fail()
+	}
 }
 
 // TestFindByIdFail makes sure FindById returns nil and an error when the user does not exist
@@ -145,7 +153,7 @@ func TestFindByIdFail(t *testing.T) {
 	}
 }
 
-func testFindSuccessHelper(t *testing.T, manager um.UserManager, q string, expectedId uint64) {
+func testFindSuccessHelper(t *testing.T, manager um.UserManager, q string, expectedId uint64, expectedName string) {
 	user, err := manager.Find(q)
 	if err != nil {
 		panic(err)
@@ -156,6 +164,10 @@ func testFindSuccessHelper(t *testing.T, manager um.UserManager, q string, expec
 	}
 	if id := user.Id(); id != expectedId {
 		t.Errorf("Find for '%s' returned ID #%d, but #%d is expected", q, id, expectedId)
+		t.Fail()
+	}
+	if displayName := user.DisplayName(); displayName != expectedName {
+		t.Errorf("Display name is '%s' but '%s' is expected", displayName, expectedName)
 		t.Fail()
 	}
 }
@@ -170,8 +182,8 @@ func TestFindSuccess(t *testing.T) {
 	}
 	defer manager.Close()
 
-	testFindSuccessHelper(t, manager, "fixtureuser1@example.com", 1)
-	testFindSuccessHelper(t, manager, "fixtureUSER2@EXAMPLe.COM", 2)
+	testFindSuccessHelper(t, manager, "fixtureuser1@example.com", 1, "Fixture User 1")
+	testFindSuccessHelper(t, manager, "fixtureUSER2@EXAMPLe.COM", 2, "Fixture User 2")
 }
 
 // TestFindFailture makes sure Find returns nil & error when user doesn't exist
