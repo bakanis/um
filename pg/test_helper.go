@@ -17,8 +17,8 @@ func testSetup() *sql.DB {
 
 		create table um_users (
 			id bigint not null default nextval('um_users_id_seq'),
-			user_name varchar(64) not null,
-			email_addr varchar(128) not null default '',
+			email_addr varchar(128) not null,
+			display_name varchar(64) not null default '',
 			status integer not null default 0,
 			hash varchar(128) not null default '',
 			salt varchar(32) not null default '',
@@ -26,16 +26,15 @@ func testSetup() *sql.DB {
 			last_login timestamp with time zone not null default 'epoch',
 
 			constraint pk_um_users primary key(id),
-			constraint ux_um_users_username unique(user_name)
+			constraint ux_um_users_email_addr unique(email_addr)
 		);
 
-		create index ix_um_users_email_addr on um_users(email_addr);
 		create index ix_um_users_created_on on um_users(created_on);
 		create index ix_um_users_last_login on um_users(last_login);
 
-		insert into um_users(user_name, email_addr, status, salt, hash) values
-			('fixtureuser1', 'fixtureuser1@example.com', 10, '950333c33bf84dbbceea95126a23974e', '2432612431302471466d6e7241755864322f7647727a4469574754362e702e3465697432472e6b54502e652e6174396167327732587a492e65732f32'),
-			('fixtureuser2', 'fixtureuser2@example.com', 20, '950333c33bf84dbbceea95126a23974e', '2432612431302471466d6e7241755864322f7647727a4469574754362e702e3465697432472e6b54502e652e6174396167327732587a492e65732f32');`
+		insert into um_users(display_name, email_addr, status, salt, hash) values
+			('Fixture User 1', 'fixtureuser1@example.com', 10, '950333c33bf84dbbceea95126a23974e', '2432612431302471466d6e7241755864322f7647727a4469574754362e702e3465697432472e6b54502e652e6174396167327732587a492e65732f32'),
+			('Fixture User 2', 'fixtureuser2@example.com', 20, '950333c33bf84dbbceea95126a23974e', '2432612431302471466d6e7241755864322f7647727a4469574754362e702e3465697432472e6b54502e652e6174396167327732587a492e65732f32');`
 
 	var err error
 	var session *sql.DB

@@ -4,12 +4,13 @@ import "time"
 
 type User interface {
 	Id() uint64
-	UserName() string
+	DisplayName() string
 	EmailAddr() string
 	Status() int32
 	CreatedOn() time.Time
 	LastLogin() time.Time
 
+	SetDisplayName(name string) error
 	SetEmailAddr(email string) error
 	SetPassword(pw string) error
 	SetStatus(status int32) error

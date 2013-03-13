@@ -19,7 +19,7 @@ func TestCreateValidUser(t *testing.T) {
 	defer manager.Close()
 
 	status := rand.Int31()
-	user, err := manager.CreateUser("testcreatevaliduser", "test@example.com", status)
+	user, err := manager.CreateUser("test@example.com", "Test User", status)
 	if err != nil {
 		panic(err)
 	}
@@ -29,10 +29,6 @@ func TestCreateValidUser(t *testing.T) {
 	}
 	if user.Id() == 0 {
 		t.Error("CreateUser did not give the User structure a valid ID number")
-		t.Fail()
-	}
-	if user.UserName() != "testcreatevaliduser" {
-		t.Errorf("UserName is '%s' instead of 'testcreatevaliduser' as expected", user.UserName())
 		t.Fail()
 	}
 	if user.EmailAddr() != "test@example.com" {
@@ -45,10 +41,10 @@ func TestCreateValidUser(t *testing.T) {
 	}
 
 	props := map[string]interface{}{
-		"id":         user.Id(),
-		"user_name":  user.UserName(),
-		"email_addr": user.EmailAddr(),
-		"status":     user.Status(),
+		"id":           user.Id(),
+		"email_addr":   user.EmailAddr(),
+		"status":       user.Status(),
+		"display_name": user.DisplayName(),
 	}
 	if !assertRecord(session, "um_users", props) {
 		t.Error("Cannot find the coresponding user record in the database")
@@ -65,14 +61,14 @@ func TestCreateInvalidUser(t *testing.T) {
 	}
 	defer manager.Close()
 
-	user, err := manager.CreateUser(" ", "validemail@example.com", 0)
+	user, err := manager.CreateUser("  ", "Some User", 0)
 	if user != nil || err == nil {
-		t.Error("CreateUser must return nil and an error when the user name is empty")
+		t.Error("CreateUser must return nil and an error when the email address is empty")
 	}
 }
 
-// TestUserNameExists makes sure UserNameExists returns true iff there's a user record in the database
-func TestUserNameExists(t *testing.T) {
+// TestEmailExists makes sure EmailExists returns true iff there's a user record in the database
+func TestEmailExists(t *testing.T) {
 	session := testSetup()
 	defer testTearDown(session)
 	manager, err := um.Open("postgres", c_testDns)
@@ -81,21 +77,21 @@ func TestUserNameExists(t *testing.T) {
 	}
 	defer manager.Close()
 
-	exists, err := manager.UserNameExists("fixtureuser1")
+	exists, err := manager.EmailAddrExists("fixtureuser1@example.com")
 	if err != nil {
 		panic(err)
 	}
 	if exists != true {
 		t.Error("fixtureuser1 exists in the database")
 	}
-	exists, err = manager.UserNameExists("FIXTUREUSER2")
+	exists, err = manager.EmailAddrExists("FIXTUREUSER2@Example.com")
 	if err != nil {
 		panic(err)
 	}
 	if exists != true {
 		t.Error("FIXTUREUSER2 (case insensitive) exists in the database")
 	}
-	exists, err = manager.UserNameExists("fixtureuser3doesnotexist")
+	exists, err = manager.EmailAddrExists("fixtureuser3doesnotexist@something.com")
 	if err != nil {
 		panic(err)
 	}
@@ -126,8 +122,8 @@ func TestFindByIdSuccess(t *testing.T) {
 		t.Errorf("User ID returns %d, but 1 is expected", id)
 		t.Fail()
 	}
-	if userName := user.UserName(); userName != "fixtureuser1" {
-		t.Errorf("User name returns '%s', but 'fixtureuser1' is expected", userName)
+	if emailAddr := user.EmailAddr(); emailAddr != "fixtureuser1@example.com" {
+		t.Errorf("Email address returns '%s', but 'fixtureuser1@example.com' is expected", emailAddr)
 		t.Fail()
 	}
 }
@@ -174,10 +170,8 @@ func TestFindSuccess(t *testing.T) {
 	}
 	defer manager.Close()
 
-	testFindSuccessHelper(t, manager, "fixtureuser1", 1)
 	testFindSuccessHelper(t, manager, "fixtureuser1@example.com", 1)
-	testFindSuccessHelper(t, manager, "fixtureUSER2", 2)
-	testFindSuccessHelper(t, manager, "fixtureUSER2@EXAMPLE.COM", 2)
+	testFindSuccessHelper(t, manager, "fixtureUSER2@EXAMPLe.COM", 2)
 }
 
 // TestFindFailture makes sure Find returns nil & error when user doesn't exist
