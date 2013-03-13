@@ -2,6 +2,7 @@ package pg
 
 import (
 	"database/sql"
+	"encoding/hex"
 	"errors"
 	"github.com/golibs/um"
 	"strings"
@@ -13,6 +14,7 @@ type t_manager struct {
 
 	createUserStmt     *sql.Stmt // prepared statement for creating user
 	userNameExistsStmt *sql.Stmt // statement for checking if a user name exists
+	findByIdStmt       *sql.Stmt // statement to get a user by ID
 }
 
 // Setup prepares the manager's database connections
@@ -23,8 +25,19 @@ func (this *t_manager) Setup(dns string) error {
 	if err == nil {
 		query := "insert into um_users(user_name, email_addr, status, created_on, last_login) values($1, $2, $3, $4, $5) returning id;"
 		this.createUserStmt, err = this.session.Prepare(query)
+		if err != nil {
+			return err
+		}
 		query = "select exists(select id from um_users where user_name=$1);"
 		this.userNameExistsStmt, err = this.session.Prepare(query)
+		if err != nil {
+			return err
+		}
+		query = "select id, user_name, email_addr, status, hash, salt, created_on, last_login from um_users where id=$1 limit 1;"
+		this.findByIdStmt, err = this.session.Prepare(query)
+		if err != nil {
+			return err
+		}
 	}
 
 	return err
@@ -67,7 +80,22 @@ func (this *t_manager) Authenticate(u um.User, plainPw string, updateLogin bool)
 }
 
 func (this *t_manager) FindById(id uint64) (um.User, error) {
-	return nil, nil
+	row := this.findByIdStmt.QueryRow(id)
+	user := &t_user{}
+	var hash, salt string
+	err := row.Scan(&user.id, &user.userName, &user.emailAddr, &user.status, &hash, &salt, &user.createdOn, &user.lastLogin)
+	if err != nil {
+		return nil, err
+	}
+	user.hash, err = hex.DecodeString(hash)
+	if err != nil {
+		return nil, err
+	}
+	user.salt, err = hex.DecodeString(salt)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
 }
 
 func (this *t_manager) Find(q string) (um.User, error) {

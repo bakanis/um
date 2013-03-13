@@ -3,12 +3,12 @@ package pg
 import "time"
 
 type t_user struct {
-	id uint64
-	userName string
+	id        uint64
+	userName  string
 	emailAddr string
-	status int32
-	hash []byte
-	salt []byte
+	status    int32
+	hash      []byte
+	salt      []byte
 	createdOn time.Time
 	lastLogin time.Time
 }
