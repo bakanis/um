@@ -16,6 +16,7 @@ type t_manager struct {
 	userNameExistsStmt *sql.Stmt // statement for checking if a user name exists
 	findByIdStmt       *sql.Stmt // statement to look for a user by ID
 	findStmt           *sql.Stmt // statement to look for a user by user name and email address
+	updateLastLoginStmt *sql.Stmt // statement to update last_login
 }
 
 func (this *t_manager) Setup(dns string) error {
@@ -40,6 +41,11 @@ func (this *t_manager) Setup(dns string) error {
 		}
 		query = "select id, user_name, email_addr, status, hash, salt, created_on, last_login from um_users where user_name=$1 or email_addr=$2 limit 1;"
 		this.findStmt, err = this.session.Prepare(query)
+		if err != nil {
+			return err
+		}
+		query = "update um_users set last_login=$1 where id=$2;"
+		this.updateLastLoginStmt, err = this.session.Prepare(query)
 		if err != nil {
 			return err
 		}
@@ -76,7 +82,18 @@ func (this *t_manager) CreateUser(userName, emailAddr string, status int32) (um.
 }
 
 func (this *t_manager) Authenticate(u um.User, plainPw string, updateLogin bool) error {
-	return nil
+	if u == nil || plainPw == "" {
+		return errors.New("User and plain password cannot be nil")
+	}
+
+	err := um.ComparePassword(u.Hash(), []byte(plainPw), u.Salt())
+	if err == nil && updateLogin {
+		lastLogin := time.Now()
+		u.(*t_user).lastLogin = lastLogin
+		_, err = this.updateLastLoginStmt.Exec(lastLogin, u.Id())
+	}
+
+	return err
 }
 
 func rowToUser(row *sql.Row) (um.User, error) {
