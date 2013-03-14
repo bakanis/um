@@ -17,6 +17,10 @@ type t_manager struct {
 	findByIdStmt        *sql.Stmt // statement to look for a user by ID
 	findStmt            *sql.Stmt // statement to look for a user by user name and email address
 	updateLastLoginStmt *sql.Stmt // statement to update last_login
+	setDisplayNameStmt  *sql.Stmt // statement to update display name
+	setEmailAddrStmt    *sql.Stmt // statement to update email address
+	setPasswordStmt     *sql.Stmt // statement to update hash and salt
+	setStatusStmt       *sql.Stmt // statement to update status
 }
 
 func (this *t_manager) Setup(dns string) error {
@@ -49,6 +53,26 @@ func (this *t_manager) Setup(dns string) error {
 		if err != nil {
 			return err
 		}
+		query = "update um_users set display_name=$1 where id=$2;"
+		this.setDisplayNameStmt, err = this.session.Prepare(query)
+		if err != nil {
+			return err
+		}
+		query = "update um_users set email_addr=$1 where id=$2;"
+		this.setEmailAddrStmt, err = this.session.Prepare(query)
+		if err != nil {
+			return err
+		}
+		query = "update um_users set hash=$1, salt=$2 where id=$3;"
+		this.setPasswordStmt, err = this.session.Prepare(query)
+		if err != nil {
+			return err
+		}
+		query = "update um_users set status=$1 where id=$2;"
+		this.setStatusStmt, err = this.session.Prepare(query)
+		if err != nil {
+			return err
+		}
 	}
 
 	return err
@@ -73,6 +97,7 @@ func (this *t_manager) CreateUser(emailAddr, displayName string, status int32) (
 		status:      status,
 		createdOn:   time.Now(),
 		lastLogin:   time.Unix(0, 0),
+		manager:     this,
 	}
 
 	row := this.createUserStmt.QueryRow(user.emailAddr, user.displayName, user.status, user.createdOn, user.lastLogin)
@@ -98,8 +123,8 @@ func (this *t_manager) Authenticate(u um.User, plainPw []byte, updateLogin bool)
 	return err
 }
 
-func rowToUser(row *sql.Row) (um.User, error) {
-	user := &t_user{}
+func (this *t_manager) rowToUser(row *sql.Row) (um.User, error) {
+	user := &t_user{manager: this}
 	var hash, salt string
 	err := row.Scan(&user.id, &user.emailAddr, &user.displayName, &user.status, &hash, &salt, &user.createdOn, &user.lastLogin)
 	if err != nil {
@@ -117,12 +142,12 @@ func rowToUser(row *sql.Row) (um.User, error) {
 }
 
 func (this *t_manager) FindById(id uint64) (um.User, error) {
-	return rowToUser(this.findByIdStmt.QueryRow(id))
+	return this.rowToUser(this.findByIdStmt.QueryRow(id))
 }
 
 func (this *t_manager) Find(q string) (um.User, error) {
 	q = strings.ToLower(strings.Trim(q, " "))
-	return rowToUser(this.findStmt.QueryRow(q))
+	return this.rowToUser(this.findStmt.QueryRow(q))
 }
 
 func (this *t_manager) EmailAddrExists(emailAddr string) (bool, error) {
