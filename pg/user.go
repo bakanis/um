@@ -53,7 +53,7 @@ func (this *t_user) SetEmailAddr(email string) error {
 	return nil
 }
 
-func (this *t_user) SetPassword(pw string) error {
+func (this *t_user) SetPassword(pw []byte) error {
 	return nil
 }
 

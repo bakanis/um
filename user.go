@@ -12,7 +12,7 @@ type User interface {
 
 	SetDisplayName(name string) error
 	SetEmailAddr(email string) error
-	SetPassword(pw string) error
+	SetPassword(pw []byte) error
 	SetStatus(status int32) error
 
 	Hash() []byte
