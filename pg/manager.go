@@ -83,12 +83,12 @@ func (this *t_manager) CreateUser(emailAddr, displayName string, status int32) (
 	return user, nil
 }
 
-func (this *t_manager) Authenticate(u um.User, plainPw string, updateLogin bool) error {
-	if u == nil || plainPw == "" {
+func (this *t_manager) Authenticate(u um.User, plainPw []byte, updateLogin bool) error {
+	if u == nil || len(plainPw) == 0 {
 		return errors.New("User and plain password cannot be nil")
 	}
 
-	err := um.ComparePassword(u.Hash(), []byte(plainPw), u.Salt())
+	err := um.ComparePassword(u.Hash(), plainPw, u.Salt())
 	if err == nil && updateLogin {
 		lastLogin := time.Now()
 		u.(*t_user).lastLogin = lastLogin

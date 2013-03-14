@@ -218,7 +218,7 @@ func TestAuthenticateSuccess(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	if manager.Authenticate(user, "Password123", false) != nil {
+	if manager.Authenticate(user, []byte("Password123"), false) != nil {
 		t.Error("Authenticate must return nil when the password matches")
 		t.FailNow()
 	}
@@ -237,7 +237,7 @@ func TestAuthenticateFail(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	if manager.Authenticate(user, "WrongPassword", false) == nil {
+	if manager.Authenticate(user, []byte("WrongPassword"), false) == nil {
 		t.Error("Authenticate must return an error when password does not match")
 		t.FailNow()
 	}
@@ -258,7 +258,7 @@ func TestAuthenticateUpdateLogin(t *testing.T) {
 	}
 	lastLogin := user.LastLogin()
 	time.Sleep(3 * time.Second)
-	if manager.Authenticate(user, "Password123", true) != nil {
+	if manager.Authenticate(user, []byte("Password123"), true) != nil {
 		t.Error("Authenticate must return nil when the password matches")
 		t.FailNow()
 	}

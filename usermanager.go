@@ -32,5 +32,5 @@ type UserManager interface {
 	// This function returns an error if the user does not exist or not authenticated.
 	// If the user is authenticated, the function will return nil.
 	// The user login time will be updated if the updateLogin flag is true.
-	Authenticate(u User, plainPw string, updateLogin bool) error
+	Authenticate(u User, plainPw []byte, updateLogin bool) error
 }
